@@ -1,0 +1,82 @@
+# Hourly check template
+
+Copy this, fill in every `{{PLACEHOLDER}}` from your `INTERVIEW.md` answers and your filled-in `connector-capability-map.md`, then paste the result as the `prompt` when you create the scheduled task in `SETUP.md`.
+
+---
+
+Hourly inbox check for {{PERSON_NAME}}'s {{TOPIC_SLUG}} digest. {{PERSONA_DESCRIPTION}}
+
+CONNECTOR: {{CONNECTOR}}. Use the tool calls from your connector capability map for every SCAN, READ, MARK_PROCESSED, and SEND/DRAFT step below — they're referenced here by capability name, not hardcoded.
+
+APPROVAL MODE: {{APPROVAL_MODE}}
+
+WORKING FOLDER: {{WORKING_FOLDER}} (if your connector has no STORAGE capability, skip any step that references it)
+
+MAX RETRIES: {{MAX_RETRIES}}
+
+FIRST: Run in bash:
+  date
+  TZ='{{TIMEZONE}}' date '+%Y-%m-%d %H %Z'
+
+This gives you the current local date, hour (0-23), and timezone label. Store the local date as LOCAL_DATE and the hour as LOCAL_HOUR.
+
+OPERATING WINDOW: If LOCAL_HOUR is less than {{OPERATING_WINDOW_START_HOUR}} or greater than {{OPERATING_WINDOW_END_HOUR}}, stop immediately. No output, no file, no notification.
+
+ERROR HANDLING (applies to every step below that calls an external tool):
+- Transient failure (rate limit, timeout, 5xx, a connector hiccup): retry up to {{MAX_RETRIES}} times with a short pause between attempts.
+- Permanent failure (auth error, permission denied, malformed request): do not retry, treat as a hard failure immediately.
+- A hard failure on SCAN (the step itself errors out, not "zero results"): stop the run and send a PushNotification (routine_summary tags) stating what failed and at which step. This is the one exception to "stay silent" — silence must only ever mean nothing new, never that the run broke.
+- A hard failure reading one specific message: skip that message, note the count in the digest footer as "N messages excluded due to read errors," continue with the rest.
+- A hard failure on DELIVER (artifact) or SEND/DRAFT: after exhausting retries, do NOT proceed to the mark-processed step. Leave every message exactly as found so the next run picks it up again. Send a failure PushNotification.
+
+STEP 1 — SCAN
+
+Use your connector's SCAN capability to find unread inbox messages from the last day. Previous hourly runs mark processed mail via MARK_PROCESSED, so a well-scoped scan should return only new arrivals since the last run. Paginate if needed.
+
+If the result is empty: stop immediately with no output. (Not an error, see ERROR HANDLING above for the distinction.)
+
+STEP 2 — CLASSIFY
+
+For each thread assign a bucket:
+
+BUCKET A — INCLUDE IN DIGEST: {{BUCKET_A_DEFINITION}}
+
+BUCKET B — SKIPPED (read to confirm, note in footer, mark processed): {{BUCKET_B_DEFINITION}} Include in the footer as: "Skipped: [subject] — [one-line reason]." Mark processed after delivery. If a Bucket B email contains something that genuinely belongs in Bucket A, promote it.
+
+BUCKET C — IGNORE ENTIRELY: {{BUCKET_C_LIST}} Do not mention, do not mark processed.
+
+If there are no Bucket A or B messages after classification: stop immediately with no output.
+
+STEP 3 — READ
+
+For every Bucket A and Bucket B message, use your connector's READ capability to get the full plain-text body. Do not summarize from snippets or subject lines. Keep a list of message IDs read and their bucket. Apply the per-message error handling above for any message that fails to read.
+
+STEP 4 — BUILD UPDATE DIGEST
+
+Write a compact self-contained HTML file named `{LOCAL_DATE}_{{TOPIC_SLUG}}-update-{LOCAL_HOUR}h.html`.
+
+Style: light and dark mode via prefers-color-scheme, max-width 820px, system font stack, all CSS inline in a style block, no external assets, no localStorage. {{VOICE_DESCRIPTION}} Banned words/phrasing: {{BANNED_PHRASES}}
+
+Sections in order:
+1. Header: "{{TOPIC_SLUG}} Update" plus the local date and time.
+2. Stat chips row: new messages scanned this check, new relevant messages (A+B), new stories found.
+3. NEW STORIES (Bucket A only): one card per story. Each card: headline, a short factual paragraph of what actually happened, a "Why it matters" callout written for {{PERSONA_DESCRIPTION}}, a line listing which source(s) carried it.
+4. Footer: list each Bucket B skipped item, count of Bucket C messages ignored this check, count of any messages excluded due to read errors, accuracy note.
+
+ACCURACY IS NON-NEGOTIABLE. Never invent facts, statistics, quotes, links, or counts. Every claim must trace to an email you actually read. Label vendor claims and unconfirmed press reports as such. If a number is an estimate, say so.
+
+If Bucket A has zero stories (only Bucket B items): do not produce or deliver a file. Mark Bucket B emails processed silently (per APPROVAL MODE below) and stop with no notification.
+
+STEP 5 — DELIVER
+
+Call SendUserFile (status "proactive", display "render") with the HTML file. If mcp__remote-devices__create_artifact is available, call it with the returned file_uuid to persist it. Apply the DELIVER error handling above if this fails.
+
+STEP 6 — MARK PROCESSED
+
+If APPROVAL MODE is AUTO: after successful delivery, use your connector's MARK_PROCESSED capability on every Bucket A and Bucket B message. Never touch Bucket C messages.
+
+If APPROVAL MODE is REVIEW: this step still applies exactly as above for the hourly check — hourly runs are read-and-classify only, nothing gets sent to anyone outside your own inbox, so there's no meaningful human checkpoint to insert here. REVIEW mode changes STEP 7 in the end-of-day template instead, where an actual email goes out.
+
+STEP 7 — NOTIFY
+
+Send a PushNotification. Wrap the content in routine_summary tags. Lead with the single most important new story in one sentence. Follow with the story count and a note to check the artifact for details.
