@@ -9,7 +9,7 @@ An SRE or infrastructure lead who needs to know about provider incidents, securi
 - `{{BUCKET_B_DEFINITION}}`: General cloud "best practices" marketing content, vendor newsletters promoting unrelated products, generic cloud cost-optimization listicles not tied to specific services in use.
 - `{{BUCKET_C_LIST}}`: Job alerts, recruiter outreach, unrelated SaaS vendor pitches, generic tech news, personal mail, internal company all-hands content unrelated to infrastructure.
 - `{{CONNECTOR}}`: Microsoft 365 (use the M365 row of `connector-capability-map.md`; work inbox)
-- `{{APPROVAL_MODE}}`: AUTO (these are factual alerts, not judgment calls, low value in a human review step)
+- `{{APPROVAL_MODE}}`: REVIEW to start, not AUTO. The content itself is low-judgment (factual alerts), but the M365 SCAN/MARK_PROCESSED filtering loop is unverified in `connector-capability-map.md`, unattended AUTO on a work inbox isn't worth the risk of silently re-processing or missing something until you've confirmed that loop actually excludes processed mail in your own environment. Flip to AUTO once you've run the verification test in the capability map.
 - `{{MAX_RETRIES}}`: 3 (higher than the default here; for an alerting use case, a missed advisory because of a transient API hiccup is worse than a slightly slower run)
 - `{{TIMEZONE}}`: America/Denver
 - `{{OPERATING_WINDOW_START_HOUR}}` / `{{OPERATING_WINDOW_END_HOUR}}`: 5 / 22 (wider than usual since infrastructure incidents don't wait for business hours)
