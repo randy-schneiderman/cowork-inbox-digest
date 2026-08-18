@@ -6,6 +6,8 @@ If you'd rather do this by hand and read every step yourself before anything tou
 
 Before pasting this in: make sure this repo (or at minimum `templates/hourly-check.template.md`, `templates/end-of-day-digest.template.md`, and `templates/connector-capability-map.md`) is available in the Cowork session's workspace. The prompt below reads those files directly rather than carrying its own copy, so the two stay in sync and you're never running an out-of-date version of one or the other.
 
+If you're starting from nothing: either clone this GitHub repo into the workspace (ask Cowork to clone `https://github.com/randy-schneiderman/cowork-inbox-digest`, or paste that URL and ask it to fetch the repo), or download the repo as a zip from GitHub and upload the three files above directly into the conversation. Either way, confirm Cowork can actually `Read` those three files before moving on, don't just assume the upload worked.
+
 ---
 
 Paste everything below this line into a Cowork conversation.
@@ -28,7 +30,7 @@ Ask me the following in groups, waiting for my answers before moving to the next
 - Group 4, schedule: timezone, operating window hours, hourly cron minute, end-of-day local send time.
 - Group 5, delivery: destination email, notification preferences.
 - Group 6, storage: working folder ID/path, or none if the connector has no storage capability.
-- Group 7, voice: tone description, banned words/phrases.
+- Group 7, voice: tone description, banned words/phrases, and the two end-of-day section titles (one for role-specific implications, one for a weekly action item, see `INTERVIEW.md` §10 for examples).
 - Group 8, safety: approval mode (AUTO or REVIEW) and max retries. If I seem unsure, recommend REVIEW and a low retry count as the safer starting point, matching the recommendation in `INTERVIEW.md`.
 
 STEP 3 — CONVERT SCHEDULE TO CRON
