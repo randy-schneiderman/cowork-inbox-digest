@@ -18,7 +18,7 @@ FIRST: Run in bash:
   date
   TZ='{{TIMEZONE}}' date '+%Y-%m-%d'
 
-Use the local date (LOCAL_DATE) everywhere: filenames, headers, and the email subject.
+Use the local date (LOCAL_DATE) everywhere: filenames, headers, and the email subject. (This template only needs the date, not the hour, so the zero-padded-hour bash arithmetic issue noted in the hourly template doesn't apply here.)
 
 ERROR HANDLING (applies to every step below that calls an external tool):
 - Transient failure (rate limit, timeout, 5xx, a connector hiccup): retry up to {{MAX_RETRIES}} times with a short pause between attempts.
@@ -45,13 +45,15 @@ STEP 3 — READ
 
 For every Bucket A and Bucket B message, use your connector's READ capability to get the full plain-text body. Do not write the digest from subject lines or snippets. Keep a note of each message ID you read and its bucket. Apply the per-message error handling above for anything that fails to read.
 
+Aggregator or "daily digest" emails (a platform's own roundup linking to several unrelated articles, each with only a one-line teaser and no full body) aren't a read error and shouldn't be retried. Exclude them from classification and count them in the footer as "N aggregator/digest emails excluded (snippet-only, no full body available)."
+
 STEP 4 — DEDUPLICATE
 
 Group Bucket A coverage into distinct stories. Count how many separate sources carried each story. Rank by a combination of source count and relevance to {{PERSONA_DESCRIPTION}}. If most coverage came from a single source, say so plainly — repetition within one outlet is not consensus.
 
 STEP 5 — BUILD THE ARTIFACT
 
-Write a single self-contained HTML file named `{LOCAL_DATE}_{{TOPIC_SLUG}}-digest.html`.
+Write a single self-contained HTML file. For the filename, convert {{TOPIC_SLUG}} to a filename-safe slug first: lowercase, spaces and punctuation to hyphens (e.g. "AI Digest" becomes "ai-digest"). Name the file `{LOCAL_DATE}_{slug}-digest.html`. Use {{TOPIC_SLUG}} in its original casing everywhere else (headers, subject line).
 
 Style: light and dark mode via prefers-color-scheme, max-width 820px, system font stack, all CSS inline, no external assets, no localStorage. {{VOICE_DESCRIPTION}} Banned words/phrasing: {{BANNED_PHRASES}}
 
@@ -62,13 +64,13 @@ Sections in order:
 4. {{ANGLE_SECTION_TITLE}}. A bulleted list pulling out the implications specifically relevant to {{PERSONA_DESCRIPTION}}.
 5. MUST-READ. 3 to 5 links worth full attention, each with one line on why. Use the real URLs from the source messages. Never substitute a homepage placeholder link.
 6. {{SKILL_SECTION_TITLE}}. One concrete thing to do this week, drawn from the day's mail, tied to {{PERSONA_DESCRIPTION}}'s goals. Explain why it's the right one.
-7. Footer: count of Bucket C excluded messages, list of Bucket B skipped items with reasons, count of read errors if any, which sources were read in full, any source-concentration caveat.
+7. Footer: count of Bucket C excluded messages, list of Bucket B skipped items with reasons, count of read errors if any, count of aggregator/digest emails excluded per STEP 3, which sources were read in full, any source-concentration caveat.
 
 ACCURACY IS NON-NEGOTIABLE. Never invent facts, statistics, quotes, links, or counts. Every claim must trace to a message you actually read. Label unverified vendor or press claims as such. If a number is an estimate, say estimate. If the day is quiet, produce a short honest digest that says so — do not pad it.
 
 STEP 6 — DELIVER HTML ARTIFACT
 
-Call SendUserFile (status "proactive", display "render") with the HTML file. If mcp__remote-devices__create_artifact is available, call it with the returned file_uuid. Apply the DELIVER error handling above if this fails.
+Call SendUserFile (status "proactive", display "render") with the HTML file. If mcp__remote-devices__create_artifact is available (a Cowork-internal tool that persists a rendered copy to the user's desktop artifact gallery; harmless to skip if it's not present), call it with the returned file_uuid. Apply the DELIVER error handling above if this fails.
 
 STEP 7 — SEND OR DRAFT EMAIL
 
@@ -86,7 +88,7 @@ If APPROVAL MODE is REVIEW: do not mark anything processed yet, regardless of wh
 
 STEP 9 — CLEANUP WORKING FOLDER
 
-If your connector has a STORAGE capability: use it to find and remove files left in {{WORKING_FOLDER}} by the hourly runs. If it doesn't, skip this step, there's nothing to clean up.
+If your connector has a STORAGE capability: use it to find and remove files left in {{WORKING_FOLDER}} by the hourly runs (each hourly run that produced an artifact saved a copy there per its STEP 5). If it doesn't, or if WORKING_FOLDER is "N/A", skip this step, there's nothing to clean up.
 
 STEP 10 — NOTIFY
 
