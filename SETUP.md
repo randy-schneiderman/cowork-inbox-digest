@@ -30,7 +30,7 @@ From `INTERVIEW.md` sections 12 and 13: pick `{{APPROVAL_MODE}}` (AUTO or REVIEW
 
 Open `templates/hourly-check.template.md` and `templates/end-of-day-digest.template.md`. Replace every `{{PLACEHOLDER}}` with your `INTERVIEW.md` answers and your filled-in capability map. There are no connector branches to delete anymore — the templates reference your capability map by name, so the same two files work for Gmail, M365, or anything else you mapped.
 
-Check `examples/platform-engineering-example.md` if you want to see one fully filled in.
+Check the `examples/` folder for a fully filled-in example close to your focus area and connector, five are included covering different topics, connectors, and approval modes.
 
 ## 6. Create the hourly scheduled task
 
