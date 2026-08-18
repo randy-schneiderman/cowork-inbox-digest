@@ -9,7 +9,7 @@ No servers, no code to deploy. Two prompts, a mail connector, and Claude Cowork'
 ## What it does
 
 - **Hourly check**: scans new unread mail since the last run, classifies each thread, and only produces an update artifact if something new and relevant showed up. Silent otherwise. Marks processed mail read so the next run doesn't re-scan it.
-- **End of day digest**: rescans the full day (read or unread), deduplicates the same story across multiple newsletters, ranks by how many independent sources covered it, and emails you a formatted summary. Cleans up its own scratch files when done.
+- **End of day digest**: rescans the full day (read or unread), deduplicates the same story across multiple newsletters, ranks by how many independent sources covered it, and emails you a formatted summary. Cleans up the scratch copies the hourly runs left behind in your working folder, if you set one up.
 
 ## Why two tiers
 
@@ -22,7 +22,7 @@ The hourly check is for real-time signal without noise: it says nothing when the
 - Style rules baked into the prompt: no em dashes, no corporate jargon, never invents a fact it didn't read, says "estimate" when it's an estimate, labels vendor claims as vendor claims.
 - Connector-agnostic: a capability map (`templates/connector-capability-map.md`) separates "what the automation needs to do" from "which tool call does it on your connector." Gmail and Microsoft 365 are filled in as reference rows; anything else, you fill in your own.
 - Explicit error handling: transient failures retry a configurable number of times, permanent failures don't, a broken scan gets you a notification instead of false silence, one bad message doesn't kill the whole run, and a failed delivery never marks messages processed.
-- A choice between AUTO (fully unattended) and REVIEW (drafts instead of sending, nothing marked processed until you approve) approval modes, so you can run this in review mode until you trust the classification.
+- A choice between AUTO (fully unattended) and REVIEW approval modes, so you can run this in review mode until you trust the classification. REVIEW's "nothing marked processed until you approve" guarantee applies to the end-of-day send, where a real email would otherwise go out: it drafts instead of sending, and holds messages unprocessed until you send the draft yourself. The hourly tier marks messages processed in REVIEW mode too, same as AUTO, since it never sends anything outside your own inbox and there's no external action to gate on a human check.
 
 ## Repo structure
 
@@ -37,6 +37,7 @@ The hourly check is for real-time signal without noise: it says nothing when the
   - `cloud-advisory-example.md` — infrastructure lead tracking AWS/Azure/GCP incidents and advisories. Microsoft 365, AUTO mode, the filled-in M365 path.
   - `financial-markets-example.md` — individual investor tracking macro conditions and specific holdings. Gmail, AUTO mode.
   - `competitive-intelligence-example.md` — product/strategy lead tracking a named set of competitors. Gmail, AUTO mode.
+  - `sample-output.html` — a real rendered digest, not a mockup, open it directly to see the format before setting anything up.
 
 ## Prerequisites
 
@@ -63,13 +64,27 @@ Either way, review what you're about to create before it starts reading your inb
 
 ## Known limitations
 
-- Classification quality is entirely a function of how specific your Bucket A/B/C definitions are. A vague "AI stuff" definition produces a mediocre digest; a specific one doesn't.
+- Classification quality is entirely a function of how specific your Bucket A/B/C definitions are. A vague "AI stuff" definition produces a mediocre digest; a specific one doesn't. A topic-based definition also won't separate by audience level on its own, a technically on-topic beginner tutorial and an advanced one both pass the same Bucket A test unless you add an audience rule.
 - On Microsoft 365, mail search and reading in this environment goes through generic MCP resource browsing tools (list/read resource) rather than one dedicated "search mail" tool, as of August 2026. Confirm the exact tools and resource URIs available in your own environment before relying on this — connector tool surfaces change, and this repo cannot promise the names will still be accurate when you read this.
-- Outlook categories and Gmail labels are not a 1:1 mapping. The "mark processed mail so it's not rescanned" mechanic needs a small adjustment on M365. See the capability map.
-- REVIEW approval mode depends on your connector having a draft-creation capability. If it doesn't, REVIEW mode isn't available for the send step; AUTO is your only option until one exists.
+- On Microsoft 365, there's currently no confirmed way to filter the mail scan by "not yet processed," only by folder or date. This means AUTO mode on M365 is running with a real, unverified assumption baked in. Read the note in `connector-capability-map.md` and test it yourself before trusting it unattended; `examples/cloud-advisory-example.md` runs REVIEW mode for exactly this reason.
+- REVIEW approval mode depends on your connector having a draft-creation capability. If it doesn't, REVIEW mode isn't available for the send step; AUTO is your only option until one exists. Also note REVIEW's "nothing marked processed until you approve" only applies at the end-of-day tier, see "How it's built" above for the hourly-tier asymmetry.
+- Aggregator-style "daily digest" emails from other services (a newsletter platform's own roundup of unrelated headlines with one-line teasers) have no full article body to read. The templates exclude these from classification rather than force a decision from a snippet, and count them separately in the footer.
 - No built-in guardrail against an overly broad "include" definition burning time scanning mail that isn't actually relevant. Start narrow, widen later.
 - Retries help with transient failures but won't save you from a genuinely broken connector or a revoked authorization. The failure notification is there so you find out, not so it self-heals.
 - Everything here depends on Claude Cowork's scheduled tasks product continuing to work the way it does today. If that changes, the templates will need updating.
+
+## Privacy and security
+
+This grants a scheduled, unattended task recurring read access to your inbox, and (in AUTO mode) send access too. Worth being deliberate about before you set it up:
+
+- Start in REVIEW mode, especially on a work inbox, until you've watched it run for a while and trust the classification. Nothing gets sent or permanently marked read without you seeing it first in that mode.
+- The scheduled task's prompt is exactly what you pasted into `create_trigger`. Anyone with access to edit your scheduled tasks can edit that prompt, including what it's allowed to read, send, or where it delivers to. Treat the trigger the same way you'd treat any standing credential.
+- Bucket C messages are explicitly never read in full, only classified from subject/sender metadata during SCAN, then ignored. If that's not tight enough for something in your inbox (legal, medical, financial), consider a narrower `{{BUCKET_A_DEFINITION}}` or a dedicated mailbox instead of running this against a general-purpose inbox.
+- The digest itself, and any email it sends, is only as private as `{{DELIVERY_EMAIL}}` and whoever else has access to your Cowork scheduled task history and run outputs.
+
+## What real output looks like
+
+`examples/sample-output.html` is a real digest built by actually running the hourly template against a live inbox during testing, not a mockup. Open it to see the format before you invest the setup time.
 
 ## License
 
