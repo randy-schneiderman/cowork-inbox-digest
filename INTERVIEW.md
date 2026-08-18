@@ -6,16 +6,17 @@ Don't skip the vague-sounding ones. "AI stuff relevant to me" is not a classific
 
 ## 1. Who is this for, and what's the focus
 
-- What's your role or the lens you want the digest filtered through? (Example: "DevOps/platform engineering leader growing into AI engineering.")
-- What's the one-line focus area? This becomes the "digest" topic. Doesn't have to be AI. Could be supply chain news, a specific market, a competitor set, a hobby.
-
-`{{PERSONA_DESCRIPTION}}` in the templates.
+- Your name, or whatever you want the digest to call you in its greeting/headers. This one isn't a design decision, just write your own name. `{{PERSON_NAME}}` in the templates.
+- What's your role or the lens you want the digest filtered through? (Example: "DevOps/platform engineering leader growing into AI engineering.") `{{PERSONA_DESCRIPTION}}` in the templates.
+- What's the one-line focus area? This becomes the digest's name (shown in headers and the email subject) and is also converted into a filename-safe slug automatically by the templates, so pick something readable in both a title and lowercase-with-hyphens. (Example: "AI Digest".) `{{TOPIC_SLUG}}` in the templates.
 
 ## 2. Bucket A: what counts as in scope
 
 List the specific subtopics that should show up in the digest. Be concrete, not aspirational. If you can't tell someone else how to sort an email into this bucket, the definition isn't done yet.
 
 Example (platform engineering / AI focus): "AI/ML models and releases, agents, AI infrastructure, AI tooling, AI engineering practice, AI industry news, AI policy affecting engineering, inference cost, observability, eval tooling, MCP, agent orchestration, GPU infrastructure, model serving, CI/CD with AI, supply-chain security for AI systems."
+
+If audience level matters to you as much as topic (for example, you want advanced technical content but not the same topic aimed at beginners), say so explicitly here. The bucket definitions below are topic-based by default; a topic-based definition will happily include something genuinely on-topic but written for the wrong skill level, since nothing in the classification step reasons about audience unless you tell it to.
 
 `{{BUCKET_A_DEFINITION}}` in the templates.
 
@@ -83,12 +84,13 @@ Then go fill out `templates/connector-capability-map.md`. Gmail and Microsoft 36
 - What tone should the digest be written in? (Example: "thoughtful, pragmatic, analytically rigorous, challenges assumptions, evaluates tradeoffs, no fluff.")
 - Any banned words or phrases? (Example: no em dashes, no "leverage," "synergy," "deep dive," "at the end of the day," "game-changer," "unlock," "landscape.")
 - Bullet points or prose by default?
+- The end-of-day digest has two titled sections beyond the story cards: one for implications specific to your role/focus, and one for a concrete weekly action item. What should those two section titles say? (Examples: "PLATFORM / DEVOPS ANGLE" and "SKILL-BUILDING"; or "ACTION REQUIRED" and "RUNBOOK UPDATE.")
 
-`{{VOICE_DESCRIPTION}}`, `{{BANNED_PHRASES}}` in the templates.
+`{{VOICE_DESCRIPTION}}`, `{{BANNED_PHRASES}}` in the templates. The two section titles are `{{ANGLE_SECTION_TITLE}}` and `{{SKILL_SECTION_TITLE}}` in `templates/end-of-day-digest.template.md`.
 
 ## 11. File naming
 
-What should generated files be named? The default pattern used here is `{DATE}_{topic}-{hour}h.html` for the hourly artifact and `{DATE}_{topic}-digest.html` for the end-of-day one. Swap `ai-digest` for your own topic slug.
+Generated filenames are built automatically by the templates: `{DATE}_{slug}-update-{hour}h.html` for the hourly artifact and `{DATE}_{slug}-digest.html` for the end-of-day one, where `{slug}` is your `{{TOPIC_SLUG}}` from section 1, lowercased with hyphens instead of spaces. Nothing to fill in here beyond picking a good `{{TOPIC_SLUG}}` in section 1.
 
 ## 12. Approval mode
 
