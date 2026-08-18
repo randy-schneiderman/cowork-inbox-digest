@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Digest Update</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #5a5a5a;
+    --card-bg: #f7f7f8;
+    --border: #e2e2e4;
+    --accent: #2f5fb3;
+    --chip-bg: #eef2fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16171a;
+      --fg: #eaeaea;
+      --muted: #a3a3a3;
+      --card-bg: #1f2023;
+      --border: #2c2d31;
+      --accent: #7fa6ea;
+      --chip-bg: #21283a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px 16px 48px;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 2px; }
+  .subhead { color: var(--muted); font-size: 14px; margin: 0 0 20px; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+  .chip {
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  .chip strong { display: block; font-size: 16px; }
+  h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin: 28px 0 14px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p { margin: 0 0 10px; font-size: 14px; }
+  .why {
+    background: var(--chip-bg);
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    font-size: 13.5px;
+    margin: 0 0 10px;
+    border-radius: 4px;
+  }
+  .why strong { color: var(--accent); }
+  .source { font-size: 12.5px; color: var(--muted); }
+  ul.footer-list { padding-left: 18px; margin: 0 0 10px; font-size: 13.5px; }
+  ul.footer-list li { margin-bottom: 6px; }
+  .accuracy { font-size: 12.5px; color: var(--muted); margin-top: 18px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .samplenote {
+    background: var(--chip-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 20px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="samplenote">
+Sample output. This is a real hourly-check digest built by running <code>templates/hourly-check.template.md</code> against a live inbox during testing, not a mockup, and not delivered by a scheduled task. Included here so you can see the format before running the interview.
+</div>
+
+<h1>AI Digest Update</h1>
+<p class="subhead">Example run, 15:00 local time</p>
+
+<div class="chips">
+  <div class="chip"><strong>7</strong>messages scanned</div>
+  <div class="chip"><strong>5</strong>new relevant (A+B)</div>
+  <div class="chip"><strong>4</strong>new stories</div>
+</div>
+
+<h2>New Stories</h2>
+
+<div class="card">
+  <h3>Anthropic pushes back on the case for open-weight models</h3>
+  <p>In a public exchange with investor Gavin Baker, Anthropic CEO Dario Amodei argued that open weights don't remove the power imbalance in AI, since whoever controls compute and chips still holds most of the leverage in practice. He also rejected the argument that regulation automatically produces regulatory capture, pointing instead to tiered rules designed to slow frontier labs while leaving smaller players less constrained. The exchange raises an open question for regulators: how to identify frontier-level capability before open weights can be copied, modified, and stripped of safety guardrails.</p>
+  <div class="why"><strong>Platform / DevOps angle:</strong> this is a policy fight, not a technical one, but the outcome affects what you're allowed to self-host and fine-tune versus what stays API-only. Worth tracking if any part of your AI infrastructure roadmap assumes open-weight models stay unrestricted.</div>
+  <p class="source">Source: The New Stack (newsletter)</p>
+</div>
+
+<div class="card">
+  <h3>AI coding startups are raising at valuations that assume winner-take-most</h3>
+  <p>Three AI coding startups closed large rounds in the same week. Code Rabbit (AI code review, security/governance focus) raised a $143M Series C at a $1.5B valuation. Lovable raised $400M at a $13.3B valuation, roughly double its December figure, reportedly on the back of $500M in annualized run-rate revenue (per TechCrunch). Cognition (maker of Devin) is reportedly in talks for $1B at a $40B valuation (per Bloomberg), after raising at $26B earlier this year. Separately, several public companies cited high AI-generated code shares: Google's CEO said 75% of its code is AI-written, Snap's CEO cited 65%, Airbnb's CEO cited 60%.</p>
+  <div class="why"><strong>Platform / DevOps angle:</strong> the funding volume assumes most teams stay multi-tool during an experimentation phase and then consolidate to two or three vendors, the way streaming did. Worth asking now which coding tools your org would actually keep if forced to cut down, before that consolidation happens on someone else's timeline.</div>
+  <p class="source">Source: The Deep View / AI for Work (newsletter). Valuation and revenue figures are as reported by the sender, citing TechCrunch and Bloomberg, not independently confirmed.</p>
+</div>
+
+<div class="card">
+  <h3>Deloitte survey: enterprises are stuck between piloting agents and scaling them</h3>
+  <p>A Deloitte survey of 500+ US business and IT leaders found 42% have tested or deployed AI agents, but only 15% have scaled multi-agent systems across the business. Only 21% said their business processes are actually prepared for agentic AI. Cited blockers: inaccessible or fragmented data, difficulty governing agents, and costly integration work, not model quality. Deloitte's Laura Shact is quoted warning that "limited, layered-on approaches may create the sense of getting ahead with quick wins, but in reality, they may not be enough."</p>
+  <div class="why"><strong>Platform / DevOps angle:</strong> this matches the pattern behind most failed agent rollouts: teams bolt an agent onto an existing workflow instead of redesigning the workflow, then blame the model when it doesn't hold up. If you're scoping agent work, the data plumbing and governance layer is very likely the actual bottleneck, not model selection.</div>
+  <p class="source">Source: The Deep View / AI for Work (newsletter), citing a Deloitte survey.</p>
+</div>
+
+<div class="card">
+  <h3>A worked example of a self-hosted LLM inference stack: FastAPI, vLLM, Docker, GPU</h3>
+  <p>A walkthrough project builds and containerizes an LLM inference service: FastAPI as the gateway, vLLM as the inference engine, a Hugging Face model, and a Streamlit frontend, all containerized with Docker for a GPU-backed deployment. It details the request path (tokenization, continuous batching, PagedAttention-based KV cache management so more concurrent requests fit in VRAM) and calls out real operational concerns: cold start while the model loads into VRAM (1-3 minutes, not a bug), GPU memory sizing per model (roughly 3GB for a 1.5B-parameter model vs. roughly 8GB for a Phi-3 Mini), and the tradeoff between fixed-cost self-hosted GPU spend and per-token hosted API billing. Framed by the sender as a beginner/resume project, but the actual content, GPU memory sizing, batching, KV cache management, is production-relevant.</p>
+  <div class="why"><strong>Platform / DevOps angle:</strong> this is a reasonably accurate, if compressed, mental model of what actually runs behind a self-hosted inference endpoint. Useful as a sanity check if you're evaluating self-host vs. API for an internal model-serving decision, or briefing a team member new to GPU-backed workloads.</div>
+  <p class="source">Source: newsletter. Note: framed for a beginner audience; included here because the underlying technical content clears the platform-engineering relevance bar regardless of framing, a real example of the audience-vs-topic gap noted in INTERVIEW.md §2.</p>
+</div>
+
+<h2>Footer</h2>
+<ul class="footer-list">
+  <li><strong>Skipped:</strong> "Welcome (and links to all my n8n templates)" — automation-agency and creator-audience content, not platform-engineering relevant, no scaling/infra/observability substance to promote.</li>
+</ul>
+<p style="font-size:13.5px;">1 message ignored as Bucket C (personal/school content).</p>
+<p style="font-size:13.5px;">1 aggregator/digest email excluded (snippet-only, no full body available): a Medium "daily digest" linking to several unrelated articles with one-line teasers each.</p>
+<p class="accuracy">Accuracy note: every claim above traces to an email actually read in full. Funding and revenue figures are labeled as reported by the original sender's cited sources (TechCrunch, Bloomberg), not independently verified. The Deloitte statistic and quote are as printed in the newsletter, not pulled from the original Deloitte report.</p>
+
+</div>
+</body>
+</html>
