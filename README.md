@@ -31,7 +31,12 @@ The hourly check is for real-time signal without noise: it says nothing when the
 - `templates/hourly-check.template.md` and `templates/end-of-day-digest.template.md` — the two prompts, connector-agnostic, with `{{PLACEHOLDER}}` tokens for your interview answers and capability map.
 - `SETUP.md` — turn your filled-in templates into working scheduled tasks, by hand, one step at a time.
 - `SETUP-PROMPT.md` — the same setup, faster: a prompt you paste into a Cowork conversation that runs the interview live, fills the templates, shows you the result, and creates the scheduled tasks after you confirm.
-- `examples/platform-engineering-example.md` — one filled-in example (a DevOps/platform engineering leader tracking AI industry news, Gmail, AUTO mode) for reference.
+- `examples/` — five filled-in examples across different focus areas and connectors, for reference:
+  - `platform-engineering-example.md` — DevOps/platform engineering leader tracking AI industry news. Gmail, AUTO mode.
+  - `ai-engineering-example.md` — hands-on AI engineer tracking implementation techniques, not industry news. Gmail, REVIEW mode.
+  - `cloud-advisory-example.md` — infrastructure lead tracking AWS/Azure/GCP incidents and advisories. Microsoft 365, AUTO mode, the filled-in M365 path.
+  - `financial-markets-example.md` — individual investor tracking macro conditions and specific holdings. Gmail, AUTO mode.
+  - `competitive-intelligence-example.md` — product/strategy lead tracking a named set of competitors. Gmail, AUTO mode.
 
 ## Prerequisites
 
